@@ -16,7 +16,8 @@ doc_ref.set({
     u'meta': {
         u'version': 1,
         u'source': u'app.py',
-        u'developer': u'johan'
+        u'developer': u'johan',
+        u'timestamp': firestore.SERVER_TIMESTAMP
     },
     u'EAN': u'EAN12345678',
     u'U_1': 230,
