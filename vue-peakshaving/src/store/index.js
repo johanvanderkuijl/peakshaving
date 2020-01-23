@@ -39,7 +39,7 @@ export default new Vuex.Store({
             ...doc.data(),
             id: doc.id
           }
-          console.log('got measurement:', measurement)
+          // console.log('got measurement:', measurement)
           measurements.push(measurement)
         })
 
