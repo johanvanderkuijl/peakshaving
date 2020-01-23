@@ -16,6 +16,10 @@ export default new Vuex.Store({
     setMeasurements (state, payload) {
       state.measurements = payload
     },
+    addMeasurement(state, payload) {
+      console.log('mutations: adding payload', payload)
+      state.measurements.push(payload)
+    },
     logUserIn (state) {
       state.userIsAuthenticated = true
     },
@@ -33,19 +37,38 @@ export default new Vuex.Store({
     loadMeasurements ({ commit }) {
       commit('setLoading', true)
       const measurements = []
-      firebase.firestore().collection('measurements').get().then((qs) => {
-        qs.forEach((doc) => {
-          const measurement = {
-            ...doc.data(),
-            id: doc.id
-          }
-          // console.log('got measurement:', measurement)
-          measurements.push(measurement)
-        })
+      firebase.firestore()
+        .collection('measurements')
+        .orderBy('meta.timestamp', 'desc')
+        .limit(10)
+        .get()
+        .then((qs) => {
+          qs.forEach((doc) => {
+            const measurement = {
+              ...doc.data(),
+              id: doc.id
+            }
+            console.log('got measurement:', measurement)
+            measurements.push(measurement)
+          })
 
-        commit('setMeasurements', measurements)
-        commit('setLoading', false)
-      })
+          commit('setMeasurements', measurements)
+          commit('setLoading', false)
+        })
+    },
+    addMeasurement ({ commit }, payload) {
+      // set the timestamp ourself
+      payload.meta.timestamp = new Date()
+      // console.log('add measurement', payload)
+      firebase.firestore().collection('measurements').doc().set(payload)
+        .then(function () {
+          console.log('Document successfully written!')
+          // add to local db
+          commit('addMeasurement', payload)
+        })
+        .catch(function (error) {
+          console.error('Error writing document: ', error)
+        })
     }
   },
   getters: {

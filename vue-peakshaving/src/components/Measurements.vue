@@ -6,7 +6,7 @@
           <v-card-title>EAN012345678</v-card-title>
           <v-card-subtitle>congestion</v-card-subtitle>
           <v-sparkline
-            :value="value"
+            :value="values"
             auto-draw
             :gradient="gradient"
             :radius="radius"
@@ -25,13 +25,24 @@
 <script>
 export default {
   data: () => ({
-    value: [0, 2, 5, 9, 5, 10, 3, 5, -4, -10, 1, 8, 2, 9, 0],
     gradient: ['#f72047', '#ffd200', '#1feaea'],
     radius: 5
   }),
   computed: {
     loading () {
       return this.$store.getters.loading
+    },
+    values () {
+      var values = []
+      var measurements = this.$store.getters.measurements
+      console.log('got measurements', measurements)
+      measurements.forEach(element => {
+        const value = element.IL_1p
+        console.log(value)
+        values.push(value)
+      })
+      return values
+      // [0, 2, 5, 9, 5, 10, 3, 5, -4, -10, 1, 8, 2, 9, 0]
     }
   },
   methods: {
