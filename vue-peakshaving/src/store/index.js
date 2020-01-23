@@ -5,6 +5,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    userIsAuthenticated: false,
     loading: false,
     measurements: []
   },
@@ -14,9 +15,21 @@ export default new Vuex.Store({
     },
     setMeasurements (state, payload) {
       state.measurements = payload
+    },
+    logUserIn (state) {
+      state.userIsAuthenticated = true
+    },
+    logUserOut (state) {
+      state.userIsAuthenticated = false
     }
   },
   actions: {
+    login ({ commit }) {
+      commit('logUserIn')
+    },
+    logout ({ commit }) {
+      commit('logUserOut')
+    },
     loadMeasurements ({ commit }) {
       commit('setLoading', true)
       const measurements = []
@@ -38,6 +51,9 @@ export default new Vuex.Store({
   getters: {
     measurements (state) {
       return state.measurements
+    },
+    userIsAuthenticated (state) {
+      return state.userIsAuthenticated
     }
   }
 })

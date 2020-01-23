@@ -6,11 +6,15 @@ import vuetify from './plugins/vuetify'
 import * as firebase from 'firebase'
 
 // components
-import Measurements from './components/Measurements.vue'
+// import Measurements from '@/components/Measurements.vue'
+import VueQrcode from '@chenfengyuan/vue-qrcode'
+// import AddMeasurement from '@/components/measurements/Add.vue'
 
 Vue.config.productionTip = false
 
-Vue.component('app-measurements', Measurements)
+// Vue.component('app-measurements', Measurements)
+Vue.component('app-qrcode', VueQrcode)
+// Vue.component('app-add-measurement', AddMeasurement)
 
 new Vue({
   router,

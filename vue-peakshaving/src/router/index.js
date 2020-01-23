@@ -1,7 +1,8 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
+import Home from '@/components/Home.vue'
 import Measurements from '@/components/Measurements.vue'
+import AddMeasurement from '@/components/measurements/Add.vue'
 
 Vue.use(VueRouter)
 
@@ -15,6 +16,11 @@ const routes = [
     path: '/measurements',
     name: 'measurements',
     component: Measurements
+  },
+  {
+    path: '/measurements/add',
+    name: 'measurements',
+    component: AddMeasurement
   }
 ]
 
