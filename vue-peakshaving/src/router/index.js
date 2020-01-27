@@ -4,6 +4,7 @@ import Home from '@/components/Home.vue'
 import Measurements from '@/components/Measurements.vue'
 import AddMeasurement from '@/components/measurements/Add.vue'
 import Login from '@/components/user/Login.vue'
+import AuthGuard from './auth-guard'
 
 Vue.use(VueRouter)
 
@@ -21,7 +22,8 @@ const routes = [
   {
     path: '/measurements/add',
     name: 'add-measurements',
-    component: AddMeasurement
+    component: AddMeasurement,
+    beforeEnter: AuthGuard
   },
   {
     path: '/user/login',

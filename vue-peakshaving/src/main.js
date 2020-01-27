@@ -34,9 +34,6 @@ new Vue({
       if (user) {
         // User is signed in.
         this.$store.dispatch('autoLogin', user)
-      } else {
-        // No user is signed in.
-        console.log('onAuthStateChanged no user found')
       }
     })
     this.$store.dispatch('loadMeasurements')

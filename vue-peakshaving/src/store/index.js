@@ -9,7 +9,11 @@ export default new Vuex.Store({
     loading: false,
     error: null,
     measurements: [],
-    simulation: true
+    simulation: true,
+    filter: {
+      limit: 20,
+      key: 'I_1'
+    }
   },
   mutations: {
     setUser (state, payload) {
@@ -28,11 +32,16 @@ export default new Vuex.Store({
       state.measurements = payload
     },
     addMeasurement (state, payload) {
-      console.log('mutations: adding payload', payload)
       state.measurements.push(payload)
     },
     toggleSimulation (state) {
       state.simulation = !state.simulation
+    },
+    setLimit (state, payload) {
+      state.filter.limit = payload
+    },
+    setKey (state, payload) {
+      state.filter.key = payload
     }
   },
   actions: {
@@ -43,7 +52,6 @@ export default new Vuex.Store({
         .then(
           user => {
             commit('setLoading', false)
-            console.log('store login', user)
             const LoggedInUser = {
               id: user.uid
             }
@@ -54,13 +62,11 @@ export default new Vuex.Store({
           error => {
             commit('setLoading', false)
             commit('setError', error)
-            console.log(error)
           }
         )
     },
     autoLogin ({ commit }, payload) {
       // called from main.js
-      console.log('autoLogin with user', payload)
       const LoggedInUser = {
         id: payload.uid
       }
@@ -77,13 +83,12 @@ export default new Vuex.Store({
       commit('clearError')
     },
     loadMeasurements ({ commit }) {
-      console.log('simulation w state:', this.state.simulation)
       const collection = this.state.simulation ? 'simulation' : 'measurements'
-      console.log('using collection:', collection)
+      const limit = this.state.filter.limit
       const docRef = firebase.firestore()
         .collection(collection)
         .orderBy('meta.timestamp', 'desc')
-        .limit(20)
+        .limit(limit)
 
       const loadRealtime = function () {
         docRef.onSnapshot(function (qs) {
@@ -94,11 +99,10 @@ export default new Vuex.Store({
               ...doc.data(),
               id: doc.id
             }
-            console.log('got measurement from db:', measurement)
             measurements.push(measurement)
           })
 
-          commit('setMeasurements', measurements)
+          commit('setMeasurements', measurements.reverse())
           commit('setLoading', false)
         })
       }
@@ -108,26 +112,27 @@ export default new Vuex.Store({
     addMeasurement ({ commit }, payload) {
       // set the timestamp ourself
       payload.meta.timestamp = new Date()
-      console.log('action addMeasurement', payload)
       const collection = this.state.simulation ? 'simulation' : 'measurements'
-      console.log('using collection:', collection)
 
       firebase.firestore().collection(collection).doc().set(payload)
         .then(function () {
-          console.log('Measurement successfully added to db')
-          // add to local db
-          // commit('addMeasurement', payload)
         })
-        .catch(function (error) {
-          console.error('Error writing document: ', error)
-        })
+        // .catch(function (error) {
+        // })
     },
     toggleSimulation ({ commit, dispatch }) {
-      console.log('inside toglesimulation')
       commit('toggleSimulation')
       // also reload the sim
       dispatch('loadMeasurements')
       // this.loadMeasurements()
+    },
+    setLimit ({ commit, dispatch }, payload) {
+      commit('setLimit', payload)
+      dispatch('loadMeasurements')
+    },
+    setKey ({ commit, dispatch }, payload) {
+      commit('setKey', payload)
+      dispatch('loadMeasurements')
     }
   },
   getters: {
@@ -142,6 +147,12 @@ export default new Vuex.Store({
     },
     simulation (state) {
       return state.simulation
+    },
+    limit (state) {
+      return state.filter.limit
+    },
+    key (state) {
+      return state.filter.key
     }
   }
 })
