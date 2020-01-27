@@ -5,78 +5,143 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    userIsAuthenticated: false,
+    user: null,
     loading: false,
-    measurements: []
+    error: null,
+    measurements: [],
+    simulation: true
   },
   mutations: {
+    setUser (state, payload) {
+      state.user = payload
+    },
     setLoading (state, payload) {
       state.loading = payload
+    },
+    setError (state, payload) {
+      state.error = payload
+    },
+    clearError (state) {
+      state.error = null
     },
     setMeasurements (state, payload) {
       state.measurements = payload
     },
-    addMeasurement(state, payload) {
+    addMeasurement (state, payload) {
       console.log('mutations: adding payload', payload)
       state.measurements.push(payload)
     },
-    logUserIn (state) {
-      state.userIsAuthenticated = true
-    },
-    logUserOut (state) {
-      state.userIsAuthenticated = false
+    toggleSimulation (state) {
+      state.simulation = !state.simulation
     }
   },
   actions: {
-    login ({ commit }) {
-      commit('logUserIn')
+    login ({ commit }, payload) {
+      commit('setLoading', true)
+      commit('clearError', true)
+      firebase.auth().signInWithEmailAndPassword(payload.email, payload.password)
+        .then(
+          user => {
+            commit('setLoading', false)
+            console.log('store login', user)
+            const LoggedInUser = {
+              id: user.uid
+            }
+            commit('setUser', LoggedInUser)
+          }
+        )
+        .catch(
+          error => {
+            commit('setLoading', false)
+            commit('setError', error)
+            console.log(error)
+          }
+        )
+    },
+    autoLogin ({ commit }, payload) {
+      // called from main.js
+      console.log('autoLogin with user', payload)
+      const LoggedInUser = {
+        id: payload.uid
+      }
+      commit('setUser', LoggedInUser)
     },
     logout ({ commit }) {
-      commit('logUserOut')
+      // remove token from local store
+      firebase.auth().signOut()
+      // remove user from state
+      commit('setUser', null)
+      // push / to router
+    },
+    clearError ({ commit }) {
+      commit('clearError')
     },
     loadMeasurements ({ commit }) {
-      commit('setLoading', true)
-      const measurements = []
-      firebase.firestore()
-        .collection('measurements')
+      console.log('simulation w state:', this.state.simulation)
+      const collection = this.state.simulation ? 'simulation' : 'measurements'
+      console.log('using collection:', collection)
+      const docRef = firebase.firestore()
+        .collection(collection)
         .orderBy('meta.timestamp', 'desc')
-        .limit(10)
-        .get()
-        .then((qs) => {
+        .limit(20)
+
+      const loadRealtime = function () {
+        docRef.onSnapshot(function (qs) {
+          commit('setLoading', true)
+          const measurements = []
           qs.forEach((doc) => {
             const measurement = {
               ...doc.data(),
               id: doc.id
             }
-            console.log('got measurement:', measurement)
+            console.log('got measurement from db:', measurement)
             measurements.push(measurement)
           })
 
           commit('setMeasurements', measurements)
           commit('setLoading', false)
         })
+      }
+      // call it
+      loadRealtime()
     },
     addMeasurement ({ commit }, payload) {
       // set the timestamp ourself
       payload.meta.timestamp = new Date()
-      // console.log('add measurement', payload)
-      firebase.firestore().collection('measurements').doc().set(payload)
+      console.log('action addMeasurement', payload)
+      const collection = this.state.simulation ? 'simulation' : 'measurements'
+      console.log('using collection:', collection)
+
+      firebase.firestore().collection(collection).doc().set(payload)
         .then(function () {
-          console.log('Document successfully written!')
+          console.log('Measurement successfully added to db')
           // add to local db
-          commit('addMeasurement', payload)
+          // commit('addMeasurement', payload)
         })
         .catch(function (error) {
           console.error('Error writing document: ', error)
         })
+    },
+    toggleSimulation ({ commit, dispatch }) {
+      console.log('inside toglesimulation')
+      commit('toggleSimulation')
+      // also reload the sim
+      dispatch('loadMeasurements')
+      // this.loadMeasurements()
     }
   },
   getters: {
+    user (state) {
+      return state.user
+    },
+    loading (state) {
+      return state.loading
+    },
     measurements (state) {
       return state.measurements
     },
-    userIsAuthenticated (state) {
-      return state.userIsAuthenticated
+    simulation (state) {
+      return state.simulation
     }
   }
 })

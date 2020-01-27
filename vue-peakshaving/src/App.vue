@@ -1,11 +1,11 @@
 <template>
-  <v-app>
+  <v-app id="peakshaving">
     <v-navigation-drawer
       v-model="drawer"
       app
       temporary
     >
-      <v-list  dense>
+      <v-list >
         <v-list-item
           v-for="item in menuItems"
           :key=item.title
@@ -19,9 +19,13 @@
           </v-list-item-content>
         </v-list-item>
 
-        <v-list-item v-if="!userIsAuthenticated" @click="login">
+        <v-list-item to="/user/login" v-if="!userIsAuthenticated">
           <v-list-item-action><v-icon left>mdi-lock-open</v-icon></v-list-item-action>
-            <v-list-item-content>login</v-list-item-content>
+            <v-list-item-content>
+              <v-list-item-title >
+              login
+              </v-list-item-title>
+            </v-list-item-content>
         </v-list-item>
         <v-list-item v-if="userIsAuthenticated" @click="logout">
           <v-list-item-action><v-icon left>mdi-logout</v-icon></v-list-item-action>
@@ -31,7 +35,7 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-app-bar app dense>
+    <v-app-bar app >
       <v-app-bar-nav-icon
         class="d-flex d-sm-none"
         @click.stop="drawer = !drawer">
@@ -40,25 +44,25 @@
         <router-link to='/' tag='span' style="cursor: pointer">Peakshaving LS</router-link>
       </v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-toolbar-items class="d-none d-sm-flex">
-        <v-btn
-          v-for="item in menuItems"
-          :key=item.title
-          text
-          :to="item.link"
-          >
-          <v-icon left>{{ item.icon }}</v-icon>
-          {{ item.title }}
-        </v-btn>
-        <v-btn v-if="!userIsAuthenticated" @click="login">
-          <v-icon left>mdi-lock-open</v-icon>
-          login
-        </v-btn>
-        <v-btn v-if="userIsAuthenticated" @click="logout">
-          <v-icon left>mdi-logout</v-icon>
-          logout
-        </v-btn>
-      </v-toolbar-items>
+      <v-switch hide-details @change="toggleSimulation" :input-value="simulation" label="simulation"></v-switch>
+
+      <v-btn
+        v-for="item in menuItems"
+        :key=item.title
+        text
+        :to="item.link"
+        >
+        <v-icon left>{{ item.icon }}</v-icon>
+        {{ item.title }}
+      </v-btn>
+      <v-btn to='/user/login' v-if="!userIsAuthenticated">
+        <v-icon left>mdi-lock-open</v-icon>
+        login
+      </v-btn>
+      <v-btn v-if="userIsAuthenticated" @click="logout">
+        <v-icon left>mdi-logout</v-icon>
+        logout
+      </v-btn>
     </v-app-bar>
 
     <v-content>
@@ -82,13 +86,13 @@ export default {
     drawer: false
   }),
   methods: {
-    login () {
-      console.log('login')
-      this.$store.dispatch('login')
-    },
     logout () {
       console.log('logout')
       this.$store.dispatch('logout')
+    },
+    toggleSimulation () {
+      console.log('toggle Sim')
+      this.$store.dispatch('toggleSimulation')
     }
   },
   computed: {
@@ -105,7 +109,10 @@ export default {
       return menuItems
     },
     userIsAuthenticated () {
-      return this.$store.getters.userIsAuthenticated
+      return this.$store.getters.user !== null && this.$store.getters.user !== undefined
+    },
+    simulation () {
+      return this.$store.getters.simulation
     }
   }
 }

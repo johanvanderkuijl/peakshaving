@@ -6,15 +6,13 @@ import vuetify from './plugins/vuetify'
 import * as firebase from 'firebase'
 
 // components
-// import Measurements from '@/components/Measurements.vue'
 import VueQrcode from '@chenfengyuan/vue-qrcode'
-// import AddMeasurement from '@/components/measurements/Add.vue'
+import Alert from './components/shared/Alert.vue'
 
 Vue.config.productionTip = false
 
-// Vue.component('app-measurements', Measurements)
 Vue.component('app-qrcode', VueQrcode)
-// Vue.component('app-add-measurement', AddMeasurement)
+Vue.component('app-alert', Alert)
 
 new Vue({
   router,
@@ -32,6 +30,15 @@ new Vue({
       appId: '1:917629353859:web:47f5f92bff45cc2f6200b6'
     })
 
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        // User is signed in.
+        this.$store.dispatch('autoLogin', user)
+      } else {
+        // No user is signed in.
+        console.log('onAuthStateChanged no user found')
+      }
+    })
     this.$store.dispatch('loadMeasurements')
   }
 }).$mount('#app')

@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 import Home from '@/components/Home.vue'
 import Measurements from '@/components/Measurements.vue'
 import AddMeasurement from '@/components/measurements/Add.vue'
+import Login from '@/components/user/Login.vue'
 
 Vue.use(VueRouter)
 
@@ -19,8 +20,13 @@ const routes = [
   },
   {
     path: '/measurements/add',
-    name: 'measurements',
+    name: 'add-measurements',
     component: AddMeasurement
+  },
+  {
+    path: '/user/login',
+    name: 'login',
+    component: Login
   }
 ]
 

@@ -19,27 +19,32 @@
                         <v-text-field
                             label="IL_1+"
                             outlined
-                            v-model="measurement.IL_1p"
+                            v-model.number="measurement.IL_1p"
+                            type="number"
                         ></v-text-field>
                         <v-text-field
                             label="IL_1-"
                             outlined
-                            v-model="measurement.IL_1m"
+                            v-model.number="measurement.IL_1m"
+                            type="number"
                         ></v-text-field>
                         <v-text-field
                             label="IZ_1"
                             outlined
-                            v-model="measurement.IZ_1"
+                            v-model.number="measurement.IZ_1"
+                            type="number"
                         ></v-text-field>
                         <v-text-field
                             label="U_1"
                             outlined
-                            v-model="measurement.U_1"
+                            v-model.number="measurement.U_1"
+                            type="number"
                         ></v-text-field>
                         <v-text-field
                             label="I_1"
                             outlined
-                            v-model="measurement.I_1"
+                            v-model.number="measurement.I_1"
+                            type="number"
                         ></v-text-field>
 
                     </v-col>
@@ -48,27 +53,32 @@
                         <v-text-field
                             label="IL_2+"
                             outlined
-                            v-model="measurement.IL_2p"
+                            v-model.number="measurement.IL_2p"
+                            type="number"
                         ></v-text-field>
                         <v-text-field
                             label="IL_2-"
                             outlined
-                            v-model="measurement.IL_2m"
+                            v-model.number="measurement.IL_2m"
+                            type="number"
                         ></v-text-field>
                         <v-text-field
                             label="IZ_2"
                             outlined
-                            v-model="measurement.IZ_2"
+                            v-model.number="measurement.IZ_2"
+                            type="number"
                         ></v-text-field>
                         <v-text-field
                             label="U_2"
                             outlined
-                            v-model="measurement.U_2"
+                            v-model.number="measurement.U_2"
+                            type="number"
                         ></v-text-field>
                         <v-text-field
                             label="I_2"
                             outlined
-                            v-model="measurement.I_2"
+                            v-model.number="measurement.I_2"
+                            type="number"
                         ></v-text-field>
                     </v-col>
                     <!-- column 3 -->
@@ -76,27 +86,32 @@
                         <v-text-field
                             label="IL_3+"
                             outlined
-                            v-model="measurement.IL_3p"
+                            v-model.number="measurement.IL_3p"
+                            type="number"
                         ></v-text-field>
                         <v-text-field
                             label="IL_3-"
                             outlined
-                            v-model="measurement.IL_3m"
+                            v-model.number="measurement.IL_3m"
+                            type="number"
                         ></v-text-field>
                         <v-text-field
                             label="IZ_3"
                             outlined
-                            v-model="measurement.IZ_3"
+                            v-model.number="measurement.IZ_3"
+                            type="number"
                         ></v-text-field>
                         <v-text-field
                             label="U_3"
                             outlined
-                            v-model="measurement.U_3"
+                            v-model.number="measurement.U_3"
+                            type="number"
                         ></v-text-field>
                         <v-text-field
                             label="I_3"
                             outlined
-                            v-model="measurement.I_3"
+                            v-model.number="measurement.I_3"
+                            type="number"
                         ></v-text-field>
                     </v-col>
 
@@ -116,21 +131,21 @@ export default {
   data: () => ({
     measurement: {
       EAN: 'EAN12345678',
-      IL_1p: '',
-      IL_1m: '',
-      IL_2p: '',
-      IL_2m: '',
-      IL_3p: '',
-      IL_3m: '',
-      IZ_1: '',
-      IZ_2: '',
-      IZ_3: '',
-      I_1: '',
-      I_2: '',
-      I_3: '',
-      U_1: '',
-      U_2: '',
-      U_3: '',
+      IL_1p: null,
+      IL_1m: null,
+      IL_2p: null,
+      IL_2m: null,
+      IL_3p: null,
+      IL_3m: null,
+      IZ_1: null,
+      IZ_2: null,
+      IZ_3: null,
+      I_1: null,
+      I_2: null,
+      I_3: null,
+      U_1: null,
+      U_2: null,
+      U_3: null,
       meta: {
         'version': 2,
         'developer': 'johan',
@@ -162,6 +177,7 @@ export default {
       return Math.floor(Math.random() * (max - min + 1) + min)
     },
     addMeasurement () {
+      console.log('dispatching measurement:', this.measurement)
       this.$store.dispatch('addMeasurement', this.measurement)
     }
   },

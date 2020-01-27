@@ -9,7 +9,7 @@
 
 subprojecten:
 - vue-peakshaving: vuejs frontend website
-- pi 
+- pi
 
 components:
 + App with menu
@@ -21,7 +21,10 @@ Todo
 + post data to database
 - auth auth to project
 - dynamically update graph on data change
+1. post data to local measurements AND server
+2. update (computed) measurements
 - use chartjs instead of sparkline
+- login / logout met melding
 
 Graph
 - show current usage

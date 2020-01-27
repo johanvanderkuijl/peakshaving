@@ -7,6 +7,7 @@
           <v-card-subtitle>congestion</v-card-subtitle>
           <v-sparkline
             :value="values"
+            :labels="values"
             auto-draw
             :gradient="gradient"
             :radius="radius"
@@ -19,11 +20,17 @@
         </v-card>
       </v-col>
     </v-row>
+    <add-measurement></add-measurement>
   </v-container>
 </template>
 
 <script>
+import AddMeasurement from '@/components/measurements/Add.vue'
+
 export default {
+  components: {
+    addMeasurement: AddMeasurement
+  },
   data: () => ({
     gradient: ['#f72047', '#ffd200', '#1feaea'],
     radius: 5
@@ -37,11 +44,11 @@ export default {
       var measurements = this.$store.getters.measurements
       console.log('got measurements', measurements)
       measurements.forEach(element => {
-        const value = element.IL_1p
+        const value = element.I_1
         console.log(value)
         values.push(value)
       })
-      return values
+      return values.reverse()
       // [0, 2, 5, 9, 5, 10, 3, 5, -4, -10, 1, 8, 2, 9, 0]
     }
   },
