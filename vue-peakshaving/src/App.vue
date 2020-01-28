@@ -98,12 +98,12 @@ export default {
   computed: {
     menuItems () {
       let menuItems = [
-        { icon: 'mdi-chart-bell-curve', title: 'Measurements', link: '/measurements' }
+        { icon: 'mdi-chart-bell-curve', title: 'Metingen', link: '/measurements' }
       ]
       if (this.userIsAuthenticated) {
         menuItems = [
           { icon: 'mdi-settings', title: 'Settings', link: 'measurements/add' },
-          { icon: 'mdi-chart-bell-curve', title: 'Measurements', link: '/measurements' }
+          { icon: 'mdi-chart-bell-curve', title: 'Metingen', link: '/measurements' }
         ]
       }
       return menuItems

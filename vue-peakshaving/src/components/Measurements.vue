@@ -1,81 +1,90 @@
 <template>
   <v-container>
+    <v-row v-if="simulation">
+      <v-col cols="9">
+        <app-consumers></app-consumers>
+      </v-col>
+      <v-col cols="3">
+        <app-congestion></app-congestion>
+      </v-col>
+    </v-row>
     <v-row>
-      <v-col md="2">
+      <v-col v-if="userIsAuthenticated" md="2">
         <filter-measurement></filter-measurement>
       </v-col>
 
-      <v-col md="10">
+      <v-col>
         <v-card :loading="loading">
           <v-card-title>EAN012345678</v-card-title>
-          <v-card-subtitle>congestion</v-card-subtitle>
-          <!-- <v-sparkline
-            :value="values"
-            :labels="values"
-            auto-draw
-            :gradient="gradient"
-            :radius="radius"
-            smooth
-          ></v-sparkline> -->
+          <v-card-subtitle>stroom (A)</v-card-subtitle>
           <app-chart
             v-if="!loading"
-            :chartdata="chartdata"
+            :chartData="chartData"
             :options="options"
           ></app-chart>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn @click="reload">Reload</v-btn>
-          </v-card-actions>
         </v-card>
       </v-col>
     </v-row>
-    <!-- <add-measurement></add-measurement> -->
   </v-container>
 </template>
 
 <script>
-// import AddMeasurement from '@/components/measurements/Add.vue'
 import FilterMeasurement from '@/components/measurements/Filter.vue'
-import Chart from '@/components/measurements/Chart.vue'
+import Chart from '@/components/measurements/Chart.js'
+import Consumers from '@/components/measurements/Consumers.vue'
+import Congestion from '@/components/measurements/Congestion.vue'
 
 export default {
   components: {
-    // addMeasurement: AddMeasurement,
     filterMeasurement: FilterMeasurement,
-    appChart: Chart
+    appChart: Chart,
+    appConsumers: Consumers,
+    appCongestion: Congestion
   },
   data: () => ({
-    gradient: ['#f72047', '#ffd200', '#1feaea'],
-    radius: 5,
     options: {
       responsive: true,
-      maintainAspectRatio: false
-      // scales: {
-      //   xAxes: [{
-      //     type: 'time',
-      //     time: {
-      //       unit: 'hours'
-      //     }
-      //   }]
-      // }
+      maintainAspectRatio: false,
+      scales: {
+        xAxes: [
+          {
+            type: 'time',
+            distribution: 'series',
+            time: {
+              // format: 'DD/MM/YYYY',
+              // tooltipFormat: 'll'
+              displayFormats: {
+                millisecond: 'HH:mm:ss.SSS',
+                second: 'HH:mm:ss',
+                minute: 'HH:mm',
+                hour: 'HH'
+              }
+            }
+          }
+        ],
+        yAxes: [{
+          ticks: {
+            beginAtZero: true
+          }
+        }]
+      }
     }
   }),
   computed: {
     loading () {
       return this.$store.getters.loading
     },
-    chartdata () {
+    chartData () {
       var values = []
       var labels = []
       var measurements = this.$store.getters.measurements
-      // measurements = measurements.reverse()
       console.log('Getting new measurements')
 
       measurements.forEach(element => {
         var value = element[this.key]
         var label = ''
 
-        // find the value
+        // find the value (as a digit or 0)
         try {
           const reg = value.toString().match(/\d+/)
           value = parseInt(reg[0])
@@ -86,9 +95,9 @@ export default {
 
         // find the label (timestamp)
         try {
-          label = element.meta.timestamp
-          // label = new Date()
-          // console.log('getting label', label)
+          // timestamp to date conversion
+          label = new Date(element.meta.timestamp.seconds * 1000)
+          // label = element.meta.timestamp
         } catch (error) {
           console.log('cannot get timestamp from', element)
           label = 'unknown'
@@ -101,43 +110,69 @@ export default {
       return {
         labels: labels,
         datasets: [
+          // {
+          //   label: this.key,
+          //   data: values,
+          //   fill: true,
+          //   borderColor: 'rgb(192, 38, 38)',
+          //   lineTension: 0.1
+          // },
+          this.dataset(measurements, { key: 'IL_1p', label: 'Congestie' }, 'rgb(255, 0, 0)', 2),
+          this.dataset(measurements, { key: 'I_1', label: 'Verbruik' }, 'rgb(25, 118, 210)', false),
+          // this.dataset(measurements, 'Aansluiting', 'rgb(0, 0, 0)', false),
+          // this.dataset(measurements, this.key, 'rgb(192, 38, 38)')
           {
-            label: this.key,
-            data: values,
+            label: 'Aansluiting',
+            data: Array.from({ length: measurements.length }, (v, k) => this.capacity),
             fill: false,
-            borderColor: 'rgb(192, 38, 38)',
+            borderColor: 'rgb(0, 0, 0)',
             lineTension: 0.1
           }
         ]
       }
     },
-    // values () {
-    //   var values = []
-    //   var measurements = this.$store.getters.measurements
-    //   measurements.forEach(element => {
-    //     // const value = element.I_1
-    //     var value = element[this.key]
-
-    //     try {
-    //       const reg = value.toString().match(/\d+/)
-    //       value = parseInt(reg[0])
-    //     } catch (error) {
-    //       console.log('cannot convert key/element ', this.key, element)
-    //       value = 0
-    //     }
-
-    //     values.push(value)
-    //   })
-    //   return values
-    // },
     key () {
       return this.$store.getters.key
+    },
+    simulation () {
+      return this.$store.getters.simulation
+    },
+    capacity () {
+      return this.$store.getters.capacity
+    },
+    userIsAuthenticated () {
+      return this.$store.getters.user !== null && this.$store.getters.user !== undefined
     }
   },
   methods: {
     reload () {
       console.log('start reload')
       this.$store.dispatch('loadMeasurements')
+    },
+    // return a proper dataset
+    dataset (measurements, key, borderColor, fill) {
+      var data = []
+      measurements.forEach(element => {
+        var value = element[key.key]
+
+        // find the value (as a digit or 0)
+        try {
+          const reg = value.toString().match(/\d+/)
+          value = parseInt(reg[0])
+        } catch (error) {
+          console.log('cannot convert key/element ', this.key.key, element)
+          value = 0
+        }
+
+        data.push(value)
+      })
+      return {
+        label: key.label,
+        data: data,
+        fill: fill,
+        borderColor: borderColor,
+        lineTension: 0.1
+      }
     }
   }
 }

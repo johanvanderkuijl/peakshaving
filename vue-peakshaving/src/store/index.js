@@ -9,9 +9,11 @@ export default new Vuex.Store({
     loading: false,
     error: null,
     measurements: [],
+    congestion: 2,
+    capacity: 32,
     simulation: true,
     filter: {
-      limit: 20,
+      limit: 10,
       key: 'I_1'
     }
   },
@@ -42,6 +44,9 @@ export default new Vuex.Store({
     },
     setKey (state, payload) {
       state.filter.key = payload
+    },
+    setCongestion (state, payload) {
+      state.congestion = payload
     }
   },
   actions: {
@@ -112,9 +117,9 @@ export default new Vuex.Store({
     addMeasurement ({ commit }, payload) {
       // set the timestamp ourself
       payload.meta.timestamp = new Date()
-      const collection = this.state.simulation ? 'simulation' : 'measurements'
+      // const collection = this.state.simulation ? 'simulation' : 'measurements'
 
-      firebase.firestore().collection(collection).doc().set(payload)
+      firebase.firestore().collection('simulation').doc().set(payload)
         .then(function () {
         })
         // .catch(function (error) {
@@ -133,6 +138,16 @@ export default new Vuex.Store({
     setKey ({ commit, dispatch }, payload) {
       commit('setKey', payload)
       dispatch('loadMeasurements')
+    },
+    incCongestion ({ commit }) {
+      if (this.state.congestion < 32) {
+        commit('setCongestion', this.state.congestion + 1)
+      }
+    },
+    decCongestion ({ commit }) {
+      if (this.state.congestion > 0) {
+        commit('setCongestion', this.state.congestion - 1)
+      }
     }
   },
   getters: {
@@ -153,6 +168,12 @@ export default new Vuex.Store({
     },
     key (state) {
       return state.filter.key
+    },
+    congestion (state) {
+      return state.congestion
+    },
+    capacity (state) {
+      return state.capacity
     }
   }
 })

@@ -6,7 +6,12 @@
         <!-- <v-card-subtitle>subtitle</v-card-subtitle> -->
         <v-card-text>
           <v-select v-model="limit" label="Aantal" :items="items"></v-select>
-          <v-select v-model="key" label="Key" :items="keys"></v-select>
+          <v-select
+            v-model="key"
+            label="Key"
+            :items="keys"
+            chips
+          ></v-select>
         </v-card-text>
       </v-card>
     <!-- </v-col>
@@ -16,7 +21,7 @@
 <script>
 export default {
   data: () => ({
-    items: [10, 20, 30, 40],
+    items: [10, 20, 30, 40, 100],
     keys: ['I_1', 'IL_1p', 'IL_2p', 'IL_1m', 'U_1']
   }),
   computed: {
