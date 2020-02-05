@@ -9,7 +9,7 @@ export default new Vuex.Store({
     loading: false,
     error: null,
     measurements: [],
-    congestion: 2,
+    congestion: 5,
     capacity: 32,
     simulation: true,
     filter: {
@@ -34,6 +34,9 @@ export default new Vuex.Store({
       state.measurements = payload
     },
     addMeasurement (state, payload) {
+      if (state.measurements.length > 20) {
+        state.measurements.splice(0, 1)
+      }
       state.measurements.push(payload)
     },
     toggleSimulation (state) {
@@ -87,49 +90,68 @@ export default new Vuex.Store({
     clearError ({ commit }) {
       commit('clearError')
     },
+    // only load if simulation is false
     loadMeasurements ({ commit }) {
       const collection = this.state.simulation ? 'simulation' : 'measurements'
       const limit = this.state.filter.limit
-      const docRef = firebase.firestore()
-        .collection(collection)
-        .orderBy('meta.timestamp', 'desc')
-        .limit(limit)
 
-      const loadRealtime = function () {
-        docRef.onSnapshot(function (qs) {
-          commit('setLoading', true)
-          const measurements = []
-          qs.forEach((doc) => {
-            const measurement = {
-              ...doc.data(),
-              id: doc.id
-            }
-            measurements.push(measurement)
+      let unsubscribe
+
+      const getRealtimeUpdates = function (document) {
+        unsubscribe = firebase.firestore().collection(collection)
+          .orderBy('meta.timestamp', 'desc')
+          .limit(limit)
+          .onSnapshot(function (querySnapshot) {
+            commit('setLoading', true)
+            const measurements = []
+            querySnapshot.forEach(function (doc) {
+              if (doc && doc.exists) {
+                const measurement = {
+                  ...doc.data(),
+                  id: doc.id
+                }
+                measurements.push(measurement)
+              }
+            })
+            commit('setLoading', false)
+            commit('setMeasurements', measurements.reverse())
           })
-
-          commit('setMeasurements', measurements.reverse())
-          commit('setLoading', false)
-        })
       }
+
+      // unsubscribe:
+      // unsubscribe()
+      // getRealtimeUpdates()
+
       // call it
-      loadRealtime()
+      if (this.state.simulation) {
+        unsubscribe()
+      } else {
+        // loadRealtime()
+        getRealtimeUpdates()
+      }
     },
     addMeasurement ({ commit }, payload) {
-      // set the timestamp ourself
-      payload.meta.timestamp = new Date()
-      // const collection = this.state.simulation ? 'simulation' : 'measurements'
+      if (this.state.simulation) {
+        commit('addMeasurement', payload)
+      } else {
+        // set the timestamp ourself
+        payload.meta.timestamp = new Date()
+        // const collection = this.state.simulation ? 'simulation' : 'measurements'
 
-      firebase.firestore().collection('simulation').doc().set(payload)
-        .then(function () {
-        })
-        // .catch(function (error) {
-        // })
+        firebase.firestore().collection('simulation').doc().set(payload)
+          .then(function () {
+          })
+          // .catch(function (error) {
+          // })
+      }
     },
     toggleSimulation ({ commit, dispatch }) {
       commit('toggleSimulation')
-      // also reload the sim
-      dispatch('loadMeasurements')
-      // this.loadMeasurements()
+      if (!this.state.simulation) {
+        dispatch('loadMeasurements')
+      } else {
+        commit('setMeasurements', [])
+      }
     },
     setLimit ({ commit, dispatch }, payload) {
       commit('setLimit', payload)

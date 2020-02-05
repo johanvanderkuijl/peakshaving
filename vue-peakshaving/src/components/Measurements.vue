@@ -1,10 +1,10 @@
 <template>
   <v-container>
     <v-row v-if="simulation">
-      <v-col cols="9">
+      <v-col md="9">
         <app-consumers></app-consumers>
       </v-col>
-      <v-col cols="3">
+      <v-col md="3">
         <app-congestion></app-congestion>
       </v-col>
     </v-row>
@@ -14,10 +14,14 @@
       </v-col>
 
       <v-col>
-        <v-card :loading="loading">
+        <v-card :loading="loading"  >
           <v-card-title>EAN012345678</v-card-title>
           <v-card-subtitle>stroom (A)</v-card-subtitle>
-          <app-chart
+            <!-- styles="{
+        height: 300px,
+        position: 'relative'
+      }" -->
+          <app-chart style="height: 300px"
             v-if="!loading"
             :chartData="chartData"
             :options="options"
@@ -51,8 +55,6 @@ export default {
             type: 'time',
             distribution: 'series',
             time: {
-              // format: 'DD/MM/YYYY',
-              // tooltipFormat: 'll'
               displayFormats: {
                 millisecond: 'HH:mm:ss.SSS',
                 second: 'HH:mm:ss',
@@ -74,60 +76,47 @@ export default {
     loading () {
       return this.$store.getters.loading
     },
+    measurements () {
+      return this.$store.getters.measurements
+    },
     chartData () {
-      var values = []
-      var labels = []
-      var measurements = this.$store.getters.measurements
-      console.log('Getting new measurements')
+      const values = []
+      const labels = []
 
-      measurements.forEach(element => {
-        var value = element[this.key]
-        var label = ''
+      this.measurements.forEach(element => {
+        // should not reassign these!!!
 
         // find the value (as a digit or 0)
         try {
-          const reg = value.toString().match(/\d+/)
-          value = parseInt(reg[0])
+          const reg = element[this.key].toString().match(/\d+/)
+          values.push(parseInt(reg[0]))
         } catch (error) {
-          console.log('cannot convert key/element ', this.key, element)
-          value = 0
+          // console.log('cannot convert key/element ', this.key, element)
+          values.push(0)
         }
 
         // find the label (timestamp)
         try {
           // timestamp to date conversion
-          label = new Date(element.meta.timestamp.seconds * 1000)
-          // label = element.meta.timestamp
+          labels.push(new Date(element.meta.timestamp.seconds * 1000))
         } catch (error) {
-          console.log('cannot get timestamp from', element)
-          label = 'unknown'
+          // console.log('cannot get timestamp from', element)
+          labels.push('unknown')
         }
-
-        values.push(value)
-        labels.push(label)
       })
 
       return {
         labels: labels,
         datasets: [
-          // {
-          //   label: this.key,
-          //   data: values,
-          //   fill: true,
-          //   borderColor: 'rgb(192, 38, 38)',
-          //   lineTension: 0.1
-          // },
-          this.dataset(measurements, { key: 'IL_1p', label: 'Congestie' }, 'rgb(255, 0, 0)', 2),
-          this.dataset(measurements, { key: 'I_1', label: 'Verbruik' }, 'rgb(25, 118, 210)', false),
-          // this.dataset(measurements, 'Aansluiting', 'rgb(0, 0, 0)', false),
-          // this.dataset(measurements, this.key, 'rgb(192, 38, 38)')
           {
             label: 'Aansluiting',
-            data: Array.from({ length: measurements.length }, (v, k) => this.capacity),
+            data: Array.from({ length: this.measurements.length }, (v, k) => this.capacity),
             fill: false,
             borderColor: 'rgb(0, 0, 0)',
             lineTension: 0.1
-          }
+          },
+          this.dataset(this.measurements, { key: 'I_1', label: 'Verbruik' }, 'rgb(25, 118, 210)', false),
+          this.dataset(this.measurements, { key: 'IL_1p', label: 'Congestie' }, 'rgb(255, 0, 0)', 0)
         ]
       }
     },
@@ -140,36 +129,33 @@ export default {
     capacity () {
       return this.$store.getters.capacity
     },
+    congestion () {
+      return this.$store.getters.congestion
+    },
     userIsAuthenticated () {
       return this.$store.getters.user !== null && this.$store.getters.user !== undefined
     }
   },
   methods: {
-    reload () {
-      console.log('start reload')
-      this.$store.dispatch('loadMeasurements')
-    },
     // return a proper dataset
     dataset (measurements, key, borderColor, fill) {
       var data = []
       measurements.forEach(element => {
-        var value = element[key.key]
-
+        const value = element[key.key]
         // find the value (as a digit or 0)
         try {
           const reg = value.toString().match(/\d+/)
-          value = parseInt(reg[0])
+          data.push(parseInt(reg[0]))
         } catch (error) {
-          console.log('cannot convert key/element ', this.key.key, element)
-          value = 0
+          // console.log('cannot convert key/element ', this.key.key, element)
+          data.push(0)
         }
-
-        data.push(value)
       })
       return {
         label: key.label,
         data: data,
         fill: fill,
+        backgroundColor: 'rgba(244, 144, 128, 0.5)',
         borderColor: borderColor,
         lineTension: 0.1
       }

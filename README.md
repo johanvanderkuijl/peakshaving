@@ -19,14 +19,20 @@ Todo
 + generate random data
 + change fields: don't use + and - signs, but use p and m
 + post data to database
-- auth auth to project
-- dynamically update graph on data change
++ auth auth to project
++ dynamically update graph on data change
 1. post data to local measurements AND server
 2. update (computed) measurements
-- use chartjs instead of sparkline
++ use chartjs instead of sparkline
 - login / logout met melding
 
-Graph
-- show current usage
-- show limit
+Chart
++ show current usage
++ show limit
++ remove create date
++ read from local var
+
+Congestion component
++ auto update
+
 
