@@ -86,11 +86,16 @@ export default {
 
         // find the value (as a digit or 0)
         try {
-          const reg = value.toString().match(/\d+/)
-          value = parseInt(reg[0])
+          if (!this.key) {
+            value = this.capacity
+          } else {
+            const reg = value.toString().match(/\d+/)
+            value = parseInt(reg[0])
+          }
         } catch (error) {
           console.log('cannot convert key/element ', this.key, element)
-          value = 0
+          // value = 0
+          value = this.capacity
         }
 
         // find the label (timestamp)
@@ -113,12 +118,12 @@ export default {
           // {
           //   label: this.key,
           //   data: values,
-          //   fill: true,
+          //   fill: false,
           //   borderColor: 'rgb(192, 38, 38)',
           //   lineTension: 0.1
           // },
-          this.dataset(measurements, { key: 'IL_1p', label: 'Congestie' }, 'rgb(255, 0, 0)', 2),
-          this.dataset(measurements, { key: 'I_1', label: 'Verbruik' }, 'rgb(25, 118, 210)', false),
+          this.dataset(measurements, { key: 'IL_1p', label: 'Congestie (IL_1p)' }, 'rgb(255, 0, 0)', 2),
+          this.dataset(measurements, { key: 'I_1', label: 'Verbruik (I_1)' }, 'rgb(25, 118, 210)', false),
           // this.dataset(measurements, 'Aansluiting', 'rgb(0, 0, 0)', false),
           // this.dataset(measurements, this.key, 'rgb(192, 38, 38)')
           {

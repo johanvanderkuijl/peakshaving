@@ -10,7 +10,7 @@ export default new Vuex.Store({
     error: null,
     measurements: [],
     congestion: 2,
-    capacity: 32,
+    capacity: 25,
     simulation: true,
     filter: {
       limit: 10,
