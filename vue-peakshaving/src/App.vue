@@ -35,7 +35,7 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-app-bar app >
+    <v-app-bar app dense>
       <v-app-bar-nav-icon
         class="d-flex d-sm-none"
         @click.stop="drawer = !drawer">
@@ -44,9 +44,9 @@
         <router-link to='/' tag='span' style="cursor: pointer">Peakshaving LS</router-link>
       </v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-switch hide-details @change="toggleSimulation" :input-value="simulation" label="simulation"></v-switch>
+      <v-switch :disabled="!userIsAuthenticated" class="mr-2" hide-details @change="toggleSimulation" :input-value="simulation" label="simulatie"></v-switch>
 
-      <v-btn
+      <v-btn class="mr-2"
         v-for="item in menuItems"
         :key=item.title
         text
@@ -87,12 +87,15 @@ export default {
   }),
   methods: {
     logout () {
-      console.log('logout')
       this.$store.dispatch('logout')
     },
     toggleSimulation () {
-      console.log('toggle Sim')
       this.$store.dispatch('toggleSimulation')
+    }
+  },
+  watch: {
+    '$route' (to, from) {
+      document.title = to.meta.title || 'Peakshaving'
     }
   },
   computed: {

@@ -12,23 +12,35 @@ const routes = [
   {
     path: '/',
     name: 'home',
-    component: Home
+    component: Home,
+    meta: {
+      title: 'Peakshaving'
+    }
   },
   {
     path: '/measurements',
     name: 'measurements',
-    component: Measurements
+    component: Measurements,
+    meta: {
+      title: 'Peakshaving - metingen'
+    }
   },
   {
     path: '/measurements/add',
     name: 'add-measurements',
     component: AddMeasurement,
-    beforeEnter: AuthGuard
+    beforeEnter: AuthGuard,
+    meta: {
+      title: 'Peakshaving - meting toevoegen'
+    }
   },
   {
     path: '/user/login',
     name: 'login',
-    component: Login
+    component: Login,
+    meta: {
+      title: 'Peakshaving - login'
+    }
   }
 ]
 
