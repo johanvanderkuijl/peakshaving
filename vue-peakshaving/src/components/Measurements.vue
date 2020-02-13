@@ -1,21 +1,23 @@
 <template>
   <v-container>
+
     <v-row v-if="simulation">
-      <v-col md="9">
+      <v-col md="9" sm="8" xs="10">
         <app-consumers></app-consumers>
       </v-col>
-      <v-col md="3">
+      <v-col md="3" sm="4" xs="2">
         <app-congestion></app-congestion>
       </v-col>
     </v-row>
+
     <v-row>
-      <v-col v-if="userIsAuthenticated" md="2">
+      <v-col  v-if="false"  md="2">
         <filter-measurement></filter-measurement>
       </v-col>
 
       <v-col>
         <v-card :loading="loading"  >
-          <v-card-title>EAN012345678</v-card-title>
+          <v-card-title>EAN00000087654321</v-card-title>
           <v-card-subtitle>stroom (A)</v-card-subtitle>
             <!-- styles="{
         height: 300px,
@@ -89,9 +91,9 @@ export default {
         // find the value (as a digit or 0)
         try {
           const reg = element[this.key].toString().match(/\d+/)
-          values.push(parseInt(reg[0]))
+          var val = parseInt(reg[0])
+          values.push(parseInt(val))
         } catch (error) {
-          // console.log('cannot convert key/element ', this.key, element)
           values.push(0)
         }
 
@@ -108,7 +110,6 @@ export default {
       return {
         labels: labels,
         datasets: [
-<<<<<<< HEAD
           // {
           //   label: this.key,
           //   data: values,
@@ -116,21 +117,19 @@ export default {
           //   borderColor: 'rgb(192, 38, 38)',
           //   lineTension: 0.1
           // },
-          this.dataset(measurements, { key: 'IL_1p', label: 'Congestie (IL_1p)' }, 'rgb(255, 0, 0)', 2),
-          this.dataset(measurements, { key: 'I_1', label: 'Verbruik (I_1)' }, 'rgb(25, 118, 210)', false),
+          this.dataset(this.measurements, { key: 'IL_1p', label: 'Congestie (IL_1p)' }, 'rgb(255, 0, 0)', 2),
+          this.dataset(this.measurements, { key: 'I_1', label: 'Verbruik (I_1)' }, 'rgb(25, 118, 210)', false),
           // this.dataset(measurements, 'Aansluiting', 'rgb(0, 0, 0)', false),
           // this.dataset(measurements, this.key, 'rgb(192, 38, 38)')
-=======
->>>>>>> 2e87e51a3de6ebb08c233deb0d5226391ce5df55
           {
             label: 'Aansluiting',
             data: Array.from({ length: this.measurements.length }, (v, k) => this.capacity),
             fill: false,
             borderColor: 'rgb(0, 0, 0)',
             lineTension: 0.1
-          },
-          this.dataset(this.measurements, { key: 'I_1', label: 'Verbruik' }, 'rgb(25, 118, 210)', false),
-          this.dataset(this.measurements, { key: 'IL_1p', label: 'Congestie' }, 'rgb(255, 0, 0)', 0)
+          }
+          // this.dataset(this.measurements, { key: 'I_1', label: 'Verbruik' }, 'rgb(25, 118, 210)', false),
+          // this.dataset(this.measurements, { key: 'IL_1p', label: 'Congestie' }, 'rgb(255, 0, 0)', 0)
         ]
       }
     },
@@ -161,8 +160,12 @@ export default {
           const reg = value.toString().match(/\d+/)
           data.push(parseInt(reg[0]))
         } catch (error) {
+          if (!this.simulation) {
+            data.push(this.capacity)
+          } else {
+            data.push(0)
+          }
           // console.log('cannot convert key/element ', this.key.key, element)
-          data.push(0)
         }
       })
       return {

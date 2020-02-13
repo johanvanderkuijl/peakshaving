@@ -24,7 +24,14 @@
             <span>Verbruik: {{ consumer.i }}A</span>
           </v-tooltip>
 
-          <v-progress-linear :value=consumer.value buffer-value=100 class="mt-2"></v-progress-linear>
+          <v-progress-linear
+            :color="consumer.slider && consumer.enabled && consumer.value < 100 ? 'error' : 'primary'"
+            height="7"
+            stream
+            :value=consumer.value
+            :buffer-value="consumer.slider && consumer.enabled ? 0 : 100"
+            class="mt-2"
+          ></v-progress-linear>
           <v-slider v-if="consumer.slider" v-model=consumer.slider min=10 max=100 dense thumb-label :thumb-size="24" step="10"></v-slider>
           <!-- {{ consumer.i }} -->
         </v-col>
@@ -43,11 +50,11 @@ export default {
         id: 1,
         name: 'Laadpaal auto',
         icon: 'mdi-car-electric',
-        enabled: false,
-        i: 0, // current A
+        enabled: true,
+        i: 16, // current A
         iMax: 16, // max A
-        value: 0, // percentage A 0-100%
-        slider: 50
+        value: 100, // percentage A 0-100%
+        slider: 10
       },
       {
         id: 2,
@@ -57,16 +64,16 @@ export default {
         i: 0,
         iMax: 6,
         value: 0,
-        slider: 80
+        slider: 70
       },
       {
         id: 3,
         name: 'Kookplaat',
-        i: 0,
+        i: 4,
         iMax: 4,
         icon: 'mdi-stove',
-        enabled: false,
-        value: 0
+        enabled: true,
+        value: 100
       },
       {
         id: 4,
@@ -213,6 +220,7 @@ export default {
     start () {
       this.randomize()
       this.addMeasurement()
+      // console.log('Setting interval consumers')
       this.interval = setInterval(() => {
         this.randomize()
         this.adjust()
@@ -220,6 +228,7 @@ export default {
       }, 2000)
     },
     stop () {
+      // console.log('Clearing interval consumers')
       clearInterval(this.interval)
     },
     randomize () {

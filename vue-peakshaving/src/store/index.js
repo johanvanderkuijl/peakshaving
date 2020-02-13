@@ -9,12 +9,13 @@ export default new Vuex.Store({
     loading: false,
     error: null,
     measurements: [],
-    congestion: 2,
-    capacity: 25,
+    congestion: 0,
+    capacity: 32,
     simulation: true,
     filter: {
       limit: 10,
-      key: 'I_1'
+      key: 'I_1',
+      meter: 1
     }
   },
   mutations: {
@@ -44,6 +45,9 @@ export default new Vuex.Store({
     },
     setLimit (state, payload) {
       state.filter.limit = payload
+    },
+    setMeter (state, payload) {
+      state.filter.meter = payload
     },
     setKey (state, payload) {
       state.filter.key = payload
@@ -94,11 +98,16 @@ export default new Vuex.Store({
     loadMeasurements ({ commit }) {
       const collection = this.state.simulation ? 'simulation' : 'measurements'
       const limit = this.state.filter.limit
+      // const meter = this.state.filter.meter
 
       let unsubscribe
 
+      // console.log('using meter', meter)
+
       const getRealtimeUpdates = function (document) {
         unsubscribe = firebase.firestore().collection(collection)
+          // .where('meta.version', '==', parseInt(this.state.filter.meter))
+          .where('meta.version', '==', 2)
           .orderBy('meta.timestamp', 'desc')
           .limit(limit)
           .onSnapshot(function (querySnapshot) {
@@ -118,15 +127,12 @@ export default new Vuex.Store({
           })
       }
 
-      // unsubscribe:
-      // unsubscribe()
-      // getRealtimeUpdates()
-
-      // call it
       if (this.state.simulation) {
+        // console.log('unsubscribing from realtime mesasurements')
         unsubscribe()
       } else {
         // loadRealtime()
+        // console.log('subscribing to realtime mesasurements')
         getRealtimeUpdates()
       }
     },
@@ -135,14 +141,14 @@ export default new Vuex.Store({
         commit('addMeasurement', payload)
       } else {
         // set the timestamp ourself
-        payload.meta.timestamp = new Date()
-        // const collection = this.state.simulation ? 'simulation' : 'measurements'
+        // payload.meta.timestamp = new Date()
+        // // const collection = this.state.simulation ? 'simulation' : 'measurements'
 
-        firebase.firestore().collection('simulation').doc().set(payload)
-          .then(function () {
-          })
-          // .catch(function (error) {
-          // })
+        // firebase.firestore().collection('simulation').doc().set(payload)
+        //   .then(function () {
+        //   })
+        //   // .catch(function (error) {
+        //   // })
       }
     },
     toggleSimulation ({ commit, dispatch }) {
@@ -150,11 +156,18 @@ export default new Vuex.Store({
       if (!this.state.simulation) {
         dispatch('loadMeasurements')
       } else {
+        // dispatch('loadMeasurements')
         commit('setMeasurements', [])
+        location.reload()
       }
     },
     setLimit ({ commit, dispatch }, payload) {
       commit('setLimit', payload)
+      this.state.measurements = []
+      dispatch('loadMeasurements')
+    },
+    setMeter ({ commit, dispatch }, payload) {
+      commit('setMeter', payload)
       dispatch('loadMeasurements')
     },
     setKey ({ commit, dispatch }, payload) {
@@ -162,7 +175,7 @@ export default new Vuex.Store({
       dispatch('loadMeasurements')
     },
     incCongestion ({ commit }) {
-      if (this.state.congestion < 32) {
+      if (this.state.congestion < this.state.capacity) {
         commit('setCongestion', this.state.congestion + 1)
       }
     },
@@ -170,6 +183,9 @@ export default new Vuex.Store({
       if (this.state.congestion > 0) {
         commit('setCongestion', this.state.congestion - 1)
       }
+    },
+    setCongestion ({ commit }, payload) {
+      commit('setCongestion', payload)
     }
   },
   getters: {
@@ -187,6 +203,9 @@ export default new Vuex.Store({
     },
     limit (state) {
       return state.filter.limit
+    },
+    meter (state) {
+      return state.filter.meter
     },
     key (state) {
       return state.filter.key

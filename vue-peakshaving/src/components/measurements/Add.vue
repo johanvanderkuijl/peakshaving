@@ -156,7 +156,7 @@ export default {
   }),
   methods: {
     randomize () {
-      console.log('randomize')
+      // console.log('randomize')
       this.measurement.IL_1p = this.randomIntBetweenInterval(220, 240)
       this.measurement.IL_1m = this.randomIntBetweenInterval(220, 240)
       this.measurement.IL_2p = this.randomIntBetweenInterval(220, 240)
@@ -177,7 +177,7 @@ export default {
       return Math.floor(Math.random() * (max - min + 1) + min)
     },
     addMeasurement () {
-      console.log('dispatching measurement:', this.measurement)
+      // console.log('dispatching measurement:', this.measurement)
       this.$store.dispatch('addMeasurement', this.measurement)
     }
   },

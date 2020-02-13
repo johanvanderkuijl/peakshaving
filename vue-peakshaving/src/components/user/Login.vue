@@ -74,18 +74,17 @@ export default {
     user (value) {
       if (value !== null && value !== undefined) {
         // after login, go to /
-        this.$router.push('/')
+        this.$router.push('/measurements')
       }
     }
   },
   methods: {
     onLogin () {
-      debugger
-      console.log(this.email, this.password, this.confirmPassword)
+      // console.log(this.email, this.password, this.confirmPassword)
       this.$store.dispatch('login', { email: this.email, password: this.password })
     },
     onDismissed () {
-      console.log('dismissed alert')
+      // console.log('dismissed alert')
       this.$store.dispatch('clearError')
     }
   }

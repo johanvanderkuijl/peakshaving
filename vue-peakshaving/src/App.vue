@@ -46,7 +46,7 @@
       <v-spacer></v-spacer>
       <v-switch :disabled="!userIsAuthenticated" class="mr-2" hide-details @change="toggleSimulation" :input-value="simulation" label="simulatie"></v-switch>
 
-      <v-btn class="mr-2"
+      <v-btn class="mr-2 d-none d-sm-flex"
         v-for="item in menuItems"
         :key=item.title
         text
@@ -55,7 +55,7 @@
         <v-icon left>{{ item.icon }}</v-icon>
         {{ item.title }}
       </v-btn>
-      <v-btn to='/user/login' v-if="!userIsAuthenticated">
+      <v-btn class="d-none d-sm-flex" to='/user/login' v-if="!userIsAuthenticated">
         <v-icon left>mdi-lock-open</v-icon>
         login
       </v-btn>
@@ -105,7 +105,6 @@ export default {
       ]
       if (this.userIsAuthenticated) {
         menuItems = [
-          { icon: 'mdi-settings', title: 'Settings', link: 'measurements/add' },
           { icon: 'mdi-chart-bell-curve', title: 'Metingen', link: '/measurements' }
         ]
       }
